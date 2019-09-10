@@ -86,7 +86,9 @@ def dir_get(zk, ip, dirname, opts):
             data = ""
             if opts['get_data']:
                 try:
-                    data = zk.get(dirname)[0].decode("unicode-escape")
+                    data = zk.get(dirname)[0]
+                    if data is not None:
+                        data = data.decode("unicode-escape")
                     if opts['b64encode_data']:
                         data = base64.b64encode(data)
                 except TypeError:
