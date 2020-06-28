@@ -68,7 +68,8 @@ def recursive_get(zk, ip, dirname, opts):
                 if dirname == "/":
                     recursive_get(zk, ip, dirname + subdir, opts)
                 else:
-                    recursive_get(zk, ip, dirname + "/" + subdir, opts)
+                    if dirname not in opts['exclude']:
+                      recursive_get(zk, ip, dirname + "/" + subdir, opts)
         print(json.dumps(results))
     except NoAuthError:
         sys.stderr.write("Authentication error getting data from %s:%s\n" % (ip, dirname))
@@ -116,8 +117,9 @@ def main():
     opts['b64encode_data'] = False   # Download data from znodes
     opts['recursive'] = True        # Recursive by default, use -n for non-recursive get
     opts['basepath'] = "/"          # Path to start searching from
+    opts['exclude'] = ""          # Paths not to traverse when crawling 
 
-    options, remainder = getopt.getopt(sys.argv[1:], 'f:t:vdDnb:h', ['file=', 'threads=', 'verbose', 'data', 'non-recursive', 'basepath', 'help'])
+    options, remainder = getopt.getopt(sys.argv[1:], 'f:t:vdDnb:he:', ['file=', 'threads=', 'verbose', 'data', 'non-recursive', 'basepath', 'help', 'exclude='])
     for opt, arg in options:
         if opt in ('-f', '--file'):
             opts['hostfile'] = arg
@@ -134,6 +136,8 @@ def main():
             opts['recursive'] = False
         elif opt in ('-b', '--basepath'):
             opts['basepath'] = arg
+        elif opt in ('-e', '--exclude'):
+            opts['exclude'] = arg.split(",")
         elif opt in ('-h', '--help'):
             usage()
 
@@ -153,7 +157,8 @@ def main():
         sys.stderr.write("threads    : %d\n" % opts['num_threads'])
         sys.stderr.write("remainder  : %s\n" % remainder)
         sys.stderr.write("recursive  : %s\n" % opts['recursive'])
-        sys.stderr.write("basepath  : %s\n" % opts['basepath'])
+        sys.stderr.write("basepath   : %s\n" % opts['basepath'])
+        sys.stderr.write("exclude    : %s\n" % opts['exclude'])
 
     t = []
     for i in range(opts['num_threads']):
