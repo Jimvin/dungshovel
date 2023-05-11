@@ -22,7 +22,10 @@ class getData (threading.Thread):
         while self.hosts.empty() == False:
             ip = self.hosts.get()
             logging.info("Thread-%d: Reading from %s" % (self.id, ip))
-            zk = KazooClient(hosts="%s:2181" % ip)
+            if self.opts['port']:
+              zk = KazooClient(hosts="%s:%s" % (ip, self.opts['port']))
+            else:
+              zk = KazooClient(hosts="%s:2181" % ip)
             try:
                 zk.start()
             except KazooTimeoutError:
@@ -46,11 +49,12 @@ def recursive_get(zk, ip, dirname, opts):
                 try:
                     data = zk.get(dirname)[0]
                     if data is not None:
+                      if opts['b64encode_data']:
+                        data = str(base64.b64encode(data))
+                      else:
                         data = data.decode("unicode-escape")
                     else:
                         data = ""
-                    if opts['b64encode_data']:
-                        data = base64.b64encode(data)
                 except TypeError:
                     data = ""
             else:
@@ -89,9 +93,10 @@ def dir_get(zk, ip, dirname, opts):
                 try:
                     data = zk.get(dirname)[0]
                     if data is not None:
+                      if opts['b64encode_data']:
+                        data = str(base64.b64encode(data))
+                      else:
                         data = data.decode("unicode-escape")
-                    if opts['b64encode_data']:
-                        data = base64.b64encode(data)
                 except TypeError:
                     data = ""
             if dirname == "/":
@@ -118,8 +123,9 @@ def main():
     opts['recursive'] = True        # Recursive by default, use -n for non-recursive get
     opts['basepath'] = "/"          # Path to start searching from
     opts['exclude'] = ""          # Paths not to traverse when crawling 
+    opts['port'] = None          # port number to use when connecting to ZooKeeper
 
-    options, remainder = getopt.getopt(sys.argv[1:], 'f:t:vdDnb:he:', ['file=', 'threads=', 'verbose', 'data', 'non-recursive', 'basepath', 'help', 'exclude='])
+    options, remainder = getopt.getopt(sys.argv[1:], 'f:t:vdDnb:he:p:', ['file=', 'threads=', 'verbose', 'data', 'non-recursive', 'basepath', 'help', 'exclude='])
     for opt, arg in options:
         if opt in ('-f', '--file'):
             opts['hostfile'] = arg
@@ -138,6 +144,8 @@ def main():
             opts['basepath'] = arg
         elif opt in ('-e', '--exclude'):
             opts['exclude'] = arg.split(",")
+        elif opt in ('-p', '--port'):
+            opts['port'] = arg
         elif opt in ('-h', '--help'):
             usage()
 
