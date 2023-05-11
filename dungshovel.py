@@ -50,7 +50,7 @@ def recursive_get(zk, ip, dirname, opts):
                     data = zk.get(dirname)[0]
                     if data is not None:
                       if opts['b64encode_data']:
-                        data = str(base64.b64encode(data))
+                        data = base64.b64encode(data).decode('ascii')
                       else:
                         data = data.decode("unicode-escape")
                     else:
@@ -94,7 +94,7 @@ def dir_get(zk, ip, dirname, opts):
                     data = zk.get(dirname)[0]
                     if data is not None:
                       if opts['b64encode_data']:
-                        data = str(base64.b64encode(data))
+                        data = base64.b64encode(data).decode('ascii')
                       else:
                         data = data.decode("unicode-escape")
                 except TypeError:
