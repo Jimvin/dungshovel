@@ -1,6 +1,6 @@
 # dungshovel
 
-Audit Apache ZooKeeper servers. For each target, dungshovel:
+Dungshovel is a tool for auditing Apache ZooKeeper servers. For each target, dungshovel:
 
 - **enumerates the znodes**: stat, ACL, and optionally data for every znode
 - **fingerprints the server**: version, mode, host, JVM, OS, data dirs and ensemble, plus which
