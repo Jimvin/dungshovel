@@ -205,3 +205,9 @@ docker run -d --name zk -p 2181:2181 -p 8080:8080 -e ZOO_4LW_COMMANDS_WHITELIST=
 python tests/seed_zk.py 127.0.0.1:2181 --hold 600 &
 dungshovel 127.0.0.1 --admin-port
 ```
+
+## License
+
+Copyright 2019-2026 Jim Halfpenny.
+
+Licensed under the [Apache License, Version 2.0](LICENSE). See [NOTICE](NOTICE).
